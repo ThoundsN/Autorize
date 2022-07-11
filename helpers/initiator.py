@@ -77,4 +77,7 @@ class Initiator():
 Created by Barak Tawily
 Contributors: {}
 
-Github:\nhttps://github.com/Quitten/Autorize""".format(self._extender.version, ", ".join(self.contributors)))
+Github:\nhttps://github.com/Quitten/Autorize
+
+modified1
+""".format(self._extender.version, ", ".join(self.contributors)))

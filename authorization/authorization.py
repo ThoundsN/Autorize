@@ -314,7 +314,10 @@ def checkAuthorization(self, messageInfo, originalHeaders, checkUnauthorized):
     message = makeMessage(self, messageInfo, True, True)
     requestResponse = makeRequest(self, messageInfo, message)
     newResponse = requestResponse.getResponse()
-    analyzedResponse = self._helpers.analyzeResponse(newResponse)
+    if newResponse is not None:
+        analyzedResponse = self._helpers.analyzeResponse(newResponse)
+    else:
+        return
     
     oldStatusCode = originalHeaders[0]
     newStatusCode = analyzedResponse.getHeaders()[0]
@@ -326,7 +329,11 @@ def checkAuthorization(self, messageInfo, originalHeaders, checkUnauthorized):
         messageUnauthorized = makeMessage(self, messageInfo, True, False)
         requestResponseUnauthorized = makeRequest(self, messageInfo, messageUnauthorized)
         unauthorizedResponse = requestResponseUnauthorized.getResponse()
-        analyzedResponseUnauthorized = self._helpers.analyzeResponse(unauthorizedResponse)  
+        if unauthorizedResponse is not None:
+
+            analyzedResponseUnauthorized = self._helpers.analyzeResponse(unauthorizedResponse)
+        else:
+            return
         statusCodeUnauthorized = analyzedResponseUnauthorized.getHeaders()[0]
         contentLenUnauthorized = getResponseContentLength(self, unauthorizedResponse)
 
@@ -358,5 +365,10 @@ def checkAuthorizationV2(self, messageInfo):
 def retestAllRequests(self):
     self.logTable.setAutoCreateRowSorter(True)
     for i in range(self.tableModel.getRowCount()):
-        logEntry = self._log.get(self.logTable.convertRowIndexToModel(i))
-        handle_message(self, "AUTORIZE", False, logEntry._originalrequestResponse)
+        try:
+
+            logEntry = self._log.get(self.logTable.convertRowIndexToModel(i))
+            handle_message(self, "AUTORIZE", False, logEntry._originalrequestResponse)
+        except Exception as e:
+            print(e)
+            continue
