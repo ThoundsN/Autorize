@@ -12,6 +12,7 @@ from gui.menu import MenuImpl
 
 from java.util import ArrayList
 from threading import Lock
+from sets import Set
 
 class Initiator():
     def __init__(self, extender):
@@ -21,6 +22,7 @@ class Initiator():
         self.contributors = ["Federico Dotta", "mgeeky", "Marcin Woloszyn", "jpginc", "Eric Harris"]
         self._extender.version = 1.5
         self._extender._log = ArrayList()
+        self._extender._urlslog = Set()
         self._extender._lock = Lock()
 
         self._extender.BYPASSSED_STR = "Bypassed!"
@@ -79,5 +81,5 @@ Contributors: {}
 
 Github:\nhttps://github.com/Quitten/Autorize
 
-modified1
+modified2
 """.format(self._extender.version, ", ".join(self.contributors)))

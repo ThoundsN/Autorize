@@ -15,6 +15,23 @@ from gui.table import LogEntry, UpdateTableEDT
 from javax.swing import SwingUtilities
 from java.net import URL
 import re
+from sets import Set
+from burp import IParameter
+
+
+
+def getReqTrait(requestinfo):
+    a = Set()
+    a.add(requestinfo.getMethod())
+    a.add(requestinfo.getUrl().getHost())
+    a.add(requestinfo.getUrl().getPath())
+
+    params = requestinfo.getParameters()
+    paramNameStr = ""
+    for param in params:
+        if param.getType() == IParameter.PARAM_URL:
+            a.add(param.getName())
+    return a
 
 def tool_needs_to_be_ignored(self, toolFlag):
     for i in range(0, self.IFList.getModel().getSize()):
@@ -47,7 +64,7 @@ def valid_tool(self, toolFlag):
             (toolFlag == self._callbacks.TOOL_REPEATER and
             self.interceptRequestsfromRepeater.isSelected()))
 
-def handle_304_status_code_prevention(self, messageIsRequest, messageInfo):
+def  handle_304_status_code_prevention(self, messageIsRequest, messageInfo):
     should_prevent = False
     if self.prevent304.isSelected():
         if messageIsRequest:
@@ -187,6 +204,13 @@ def handle_message(self, toolFlag, messageIsRequest, messageInfo):
                     if isStatusCodesReturned(self, messageInfo, ["304", "204"]):
                         return
 
+                if self.uniqueRequest.isSelected() and toolFlag != "AUTORIZE":
+                    reqtrait = getReqTrait(self._helpers.analyzeRequest(messageInfo))
+                    if reqtrait in self._urlslog:
+                        # print("[return]:  ")
+                        # print(reqtrait)
+                        return
+
                 if no_filters_defined(self):
                     checkAuthorization(self, messageInfo,
                     self._helpers.analyzeResponse(messageInfo.getResponse()).getHeaders(),
@@ -324,6 +348,9 @@ def checkAuthorization(self, messageInfo, originalHeaders, checkUnauthorized):
     oldContentLen = getResponseContentLength(self, oldResponse)
     newContentLen = getResponseContentLength(self, newResponse)
 
+
+
+
     # Check unauthorized request
     if checkUnauthorized:
         messageUnauthorized = makeMessage(self, messageInfo, True, False)
@@ -340,6 +367,7 @@ def checkAuthorization(self, messageInfo, originalHeaders, checkUnauthorized):
     EDFilters = self.EDModel.toArray()
 
     impression = checkBypass(self, oldStatusCode,newStatusCode,oldContentLen,newContentLen,EDFilters,requestResponse,self.AndOrType.getSelectedItem())
+
 
     if checkUnauthorized:
         EDFiltersUnauth = self.EDModelUnauth.toArray()
@@ -358,17 +386,23 @@ def checkAuthorization(self, messageInfo, originalHeaders, checkUnauthorized):
     SwingUtilities.invokeLater(UpdateTableEDT(self,"insert",row,row))
     self.currentRequestNumber = self.currentRequestNumber + 1
     self._lock.release()
-    
+
+    reqtrait = getReqTrait(self._helpers.analyzeRequest(messageInfo))
+    self._urlslog.add(reqtrait)
+
+
 def checkAuthorizationV2(self, messageInfo):
     checkAuthorization(self, messageInfo, self._extender._helpers.analyzeResponse(messageInfo.getResponse()).getHeaders(), self._extender.doUnauthorizedRequest.isSelected())
 
 def retestAllRequests(self):
     self.logTable.setAutoCreateRowSorter(True)
     for i in range(self.tableModel.getRowCount()):
-        try:
-
-            logEntry = self._log.get(self.logTable.convertRowIndexToModel(i))
-            handle_message(self, "AUTORIZE", False, logEntry._originalrequestResponse)
-        except Exception as e:
-            print(e)
-            continue
+        # try:
+        #
+        #     logEntry = self._log.get(self.logTable.convertRowIndexToModel(i))
+        #     handle_message(self, "AUTORIZE", False, logEntry._originalrequestResponse)
+        # except Exception as e:
+        #     print(e)
+        #     continue
+        logEntry = self._log.get(self.logTable.convertRowIndexToModel(i))
+        handle_message(self, "AUTORIZE", False, logEntry._originalrequestResponse)
