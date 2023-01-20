@@ -35,14 +35,23 @@ class EnforcementDetectors():
         EDLabelList = JLabel("Filter List:")
         EDLabelList.setBounds(10, 165, 140, 30)
 
-        EDStrings = ["Headers (simple string): (enforced message headers contains)",
-                     "Headers (regex): (enforced message headers contains)",
-                     "Body (simple string): (enforced message body contains)",
-                     "Body (regex): (enforced message body contains)",
-                     "Full response (simple string): (enforced message contains)",
-                     "Full response (regex): (enforced message contains)",
-                     "Full response length: (of enforced response)",
-                     "Status code equals: (numbers only)"]
+        EDStrings = [           "Headers (simple string): (enforced message headers contain)",
+            "Headers NOT (simple string): (enforced message headers NOT contain)",
+            "Headers (regex): (enforced message headers contain)",
+            "Headers NOT (regex): (enforced message headers NOT contain)",
+            "Body (simple string): (enforced message body contains)",
+            "Body NOT (simple string): (enforced message body NOT contains)",
+            "Body (regex): (enforced message body contains)",
+            "Body NOT (regex): (enforced message body NOT contains)",
+            "Full response (simple string): (enforced message contains)",
+            "Full response NOT (simple string): (enforced message NOT contains)",
+            "Full response (regex): (enforced message contains)",
+            "Full response NOT (regex): (enforced message NOT contains)",
+            "Full response length: (of enforced response)",
+            "Full response NOT length: (of enforced response)",
+            "Status code equals: (numbers only)",
+            "Status code NOT equals: (numbers only)"
+                                ]
         self._extender.EDType = JComboBox(EDStrings)
         self._extender.EDType.setBounds(80, 10, 430, 30)
        
@@ -99,14 +108,24 @@ class EnforcementDetectors():
         EDLabelList = JLabel("Filter List:")
         EDLabelList.setBounds(10, 165, 140, 30)
 
-        EDStrings = ["Headers (simple string): (enforced message headers contains)",
-                     "Headers (regex): (enforced message headers contains)",
-                     "Body (simple string): (enforced message body contains)",
-                     "Body (regex): (enforced message body contains)",
-                     "Full response (simple string): (enforced message contains)",
-                     "Full response (regex): (enforced message contains)",
-                     "Full response length: (of enforced response)",
-                     "Status code equals: (numbers only)"]
+        EDStrings = [
+            "Headers (simple string): (enforced message headers contain)",
+            "Headers NOT (simple string): (enforced message headers NOT contain)",
+            "Headers (regex): (enforced message headers contain)",
+            "Headers NOT (regex): (enforced message headers NOT contain)",
+            "Body (simple string): (enforced message body contains)",
+            "Body NOT (simple string): (enforced message body NOT contains)",
+            "Body (regex): (enforced message body contains)",
+            "Body NOT (regex): (enforced message body NOT contains)",
+            "Full response (simple string): (enforced message contains)",
+            "Full response NOT (simple string): (enforced message NOT contains)",
+            "Full response (regex): (enforced message contains)",
+            "Full response NOT (regex): (enforced message NOT contains)",
+            "Full response length: (of enforced response)",
+            "Full response NOT length: (of enforced response)",
+            "Status code equals: (numbers only)",
+            "Status code NOT equals: (numbers only)"
+                                 ]
         self._extender.EDTypeUnauth = JComboBox(EDStrings)
         self._extender.EDTypeUnauth.setBounds(80, 10, 430, 30)
        

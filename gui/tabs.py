@@ -15,6 +15,13 @@ from javax.swing import JPanel
 from java.awt import GridLayout
 from java.awt import Toolkit
 from java.lang import Math
+from javax.swing import KeyStroke
+from javax.swing import JTable
+from javax.swing import AbstractAction
+from java.awt.event import KeyEvent
+from java.awt.event import InputEvent
+
+
 
 from burp import ITab
 from burp import IMessageEditorController
@@ -75,6 +82,25 @@ class Tabs():
 
         sendRequestMenu2 = JMenuItem("Send Modified Request to Repeater")
         sendRequestMenu2.addActionListener(SendRequestRepeater(self._extender, self._extender._callbacks, False))
+
+        # Define the key combination for the shortcut
+        keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_R, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx())
+        keyStroke1 = KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.META_DOWN_MASK)
+
+        # Get the input and action maps for the JTable
+        inputMap = self._extender.logTable.getInputMap(JTable.WHEN_FOCUSED)
+        actionMap = self._extender.logTable.getActionMap()
+
+        # Bind the key combination to the action
+        inputMap.put(keyStroke, "myShortcutAction")
+        actionMap.put("myShortcutAction", SendModifiedRequestToRepeaterAction(self._extender, self._extender._callbacks))
+
+
+        # Bind the key combination to the action
+        inputMap.put(keyStroke1, "copyToClipBoard")
+        actionMap.put("copyToClipBoard",
+                      CopySelectedURLToClipBoard(self._extender, self._extender._callbacks))
+
 
         sendResponseMenu = JMenuItem("Send Responses to Comparer")
         sendResponseMenu.addActionListener(SendResponseComparer(self._extender, self._extender._callbacks))
@@ -157,7 +183,7 @@ class SendRequestRepeater(ActionListener):
         proto = request.getHttpService().getProtocol()
         secure = True if proto == "https" else False
 
-        self._callbacks.sendToRepeater(host, port, secure, request.getRequest(), "Autorize");
+        self._callbacks.sendToRepeater(host, port, secure, request.getRequest(), "Autorize")
 
 class SendResponseComparer(ActionListener):
     def __init__(self, extender, callbacks):
@@ -238,3 +264,36 @@ class Mouseclick(MouseAdapter):
             else:
                 collapse(self._extender, evt.getComponent())
         
+class SendModifiedRequestToRepeaterAction(AbstractAction):
+    def __init__(self, extender, callbacks):
+        self._extender = extender
+        self._callbacks = callbacks
+
+    def actionPerformed(self, e):
+        # Get the selected row of the JTable
+        row = self._extender.logTable.getSelectedRow()
+
+        # Get the LogEntry object for the selected row
+        rowModelIndex = self._extender.logTable.convertRowIndexToModel(row)
+        entry = self._extender.tableModel.getValueAt(rowModelIndex, 0)
+
+        # Get the modified request
+        request = self._extender._currentlyDisplayedItem._requestResponse
+        host = request.getHttpService().getHost()
+        port = request.getHttpService().getPort()
+        proto = request.getHttpService().getProtocol()
+        secure = True if proto == "https" else False
+
+        self._callbacks.sendToRepeater(host, port, secure, request.getRequest(), "Autorize")
+
+
+class CopySelectedURLToClipBoard(AbstractAction):
+    def __init__(self, extender, callbacks):
+        self._extender = extender
+        self._callbacks = callbacks
+
+    def actionPerformed(self, e):
+        stringSelection = StringSelection(str(self._extender._helpers.analyzeRequest(
+            self._extender._currentlyDisplayedItem._requestResponse).getUrl()))
+        clpbrd = Toolkit.getDefaultToolkit().getSystemClipboard()
+        clpbrd.setContents(stringSelection, None)

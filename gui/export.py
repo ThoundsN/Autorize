@@ -74,7 +74,8 @@ class Export():
                                         actionPerformed=self.export)
             self.exportButton.setBounds(390, 50, 100, 30)
 
-            saveRestoreLabel = JLabel("State:")
+            saveRestoreLabel = JLabel("State (incl. Configuration):")
+
             saveRestoreLabel.setBounds(10, 160, 250, 30)
             saveRestoreLabel.setFont(boldFont)
 
